@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MainListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, MainListViewModelDelegate {
+class MainListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     // MARK: - Properties
     lazy var titleLabel: UILabel = {
@@ -32,7 +32,6 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     init(viewModel: MainListViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.viewModel.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -65,7 +64,15 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.loadData()
+        Task {
+            do {
+                self.values = try await viewModel.loadData()
+                tableView.reloadData()
+            } catch {
+                // apresentar um alerta de erro
+            }
+        }
+        
     }
 
     // MARK: - Table View Setup
@@ -75,18 +82,12 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCellView", for: indexPath) as! MovieUITableViewCell
-        cell.setup(movieTitle: values[indexPath.row].title)
+        cell.setup(movie: values[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         titleLabel.text = values[indexPath.row].title
-    }
-    
-    // MARK: - MainListViewModelDelegate
-    func displayData(values: [Movies]) {
-        self.values = values
-        tableView.reloadData()
     }
 }

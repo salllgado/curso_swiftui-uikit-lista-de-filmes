@@ -8,11 +8,11 @@
 import UIKit
 import SwiftUI
 
-class MovieUITableViewCell: UITableViewCell {
+final class MovieUITableViewCell: UITableViewCell {
     
-    func setup(movieTitle: String) {
+    func setup(movie: Movies) {
         self.contentConfiguration = UIHostingConfiguration {
-            MovieCellView(movieTitle: movieTitle)
+            MovieCellView(movie: movie)
         }
     }
 }
