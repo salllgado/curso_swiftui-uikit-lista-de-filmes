@@ -1,0 +1,40 @@
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcworkspace
+xcshareddata/WorkspaceSettings.xcsettings
+
+# Swift Package Manager
+/.build/
+/Package.resolved
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# Secrets
+*/Secrets.plist
+.env
+
+# Editor specific
+.vscode/
+.idea/
+
+# Archives
+*.xcarchive
+
+# Others
+*.ipa
+*.dSYM

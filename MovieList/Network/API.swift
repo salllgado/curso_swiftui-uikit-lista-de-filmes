@@ -30,7 +30,11 @@ enum API {
     }
     
     var headers: [String: String] {
-        return ["Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlMTY5NGMxOTllYzI2ODM0NmU2MzdiYzA0MGZhZDUxOCIsIm5iZiI6MTU1ODg5MTQ2Ni41ODYsInN1YiI6IjVjZWFjYmNhMGUwYTI2NjQzZmNkMzViMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.DfLd7Z-h7dMuvZF5w-WNW-RfOWtky6qolFzHbAUPKp4"]
+        guard let apiKey = Bundle.main.secrets?["API_KEY"] as? String, !apiKey.isEmpty else {
+            fatalError("TMDB API Key não encontrada. Adicione Secrets.plist (não comitar).")
+        }
+
+        return ["Authorization": "Bearer \(apiKey)"]
     }
     
     var method: APIMethod {
