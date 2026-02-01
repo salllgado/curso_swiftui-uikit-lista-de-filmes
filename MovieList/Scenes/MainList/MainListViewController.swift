@@ -80,9 +80,8 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
             rootView: MovieSearchView(
                 onSelect: { [weak self] movie in
                     guard let self = self else { return }
-                    // Dismiss the search, then push detail
                     self.dismiss(animated: true) {
-                        let detailVC = UIHostingController(rootView: MovieDetailView(movie: movie))
+                        let detailVC = UIHostingController(rootView: MovieDetailView(viewModel: .init(movie: movie)))
                         self.navigationController?.pushViewController(detailVC, animated: true)
                     }
                 }
@@ -106,7 +105,7 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let movie = values[indexPath.row]
-        let detailVC = UIHostingController(rootView: MovieDetailView(movie: movie))
+        let detailVC = UIHostingController(rootView: MovieDetailView(viewModel: .init(movie: movie)))
         navigationController?.pushViewController(detailVC, animated: true)
     }
 }
