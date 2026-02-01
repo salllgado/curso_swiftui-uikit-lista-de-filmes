@@ -2,50 +2,54 @@ import SwiftUI
 
 struct MovieSearchView: View {
     @Environment(\.dismiss) private var dismiss
-
-    let allMovies: [Movies]
+    
+    @State private var viewModel: MovieSearchViewModel = .init()
+    @State private var query: String = ""
+    
     var onSelect: (Movies) -> Void
 
-    @State private var query: String = ""
-    @State private var suggestions: [String] = MovieSearchSuggestions.load()
-    
+    init(onSelect: @escaping (Movies) -> Void) {
+        self.onSelect = onSelect
+    }
+
     private var filteredMovies: [Movies] {
         guard !query.isEmpty else { return [] }
-        return allMovies.filter { $0.title.lowercased().contains(query.lowercased()) }
+        return viewModel.movies.filter { $0.title.lowercased().contains(query.lowercased()) }
+    }
+    
+    @ViewBuilder
+    var searchTextField: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            TextField("Search movies...", text: $query)
+                .foregroundColor(.primary)
+                .disableAutocorrection(true)
+        }
+        .padding(12)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color.secondary.opacity(0.12), lineWidth: 1)
+        )
+        .padding(.horizontal)
+        .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
     }
     
     var body: some View {
         NavigationView {
             VStack {
-                TextField("Search movies...", text: $query)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-
+                searchTextField
+                
                 if query.isEmpty {
-                    // Show last suggestions
-                    if suggestions.isEmpty {
-                        Text("No recent searches")
-                            .foregroundColor(.secondary)
-                            .padding()
-                    } else {
-                        List {
-                            Section(header: Text("Recent Searches")) {
-                                ForEach(suggestions, id: \.self) { suggestion in
-                                    Button(action: {
-                                        query = suggestion
-                                    }) {
-                                        Text(suggestion)
-                                    }
-                                }
-                                .onDelete(perform: deleteSuggestion)
-                            }
-                        }
-                        .listStyle(InsetGroupedListStyle())
-                    }
+                    Spacer()
+                    Text("Type something to search")
+                        .foregroundColor(.secondary)
+                        .padding()
+                    Spacer()
                 } else {
                     List(filteredMovies) { movie in
                         Button(action: {
-                            MovieSearchSuggestions.save(query: movie.title)
                             onSelect(movie)
                             dismiss()
                         }) {
@@ -59,41 +63,15 @@ struct MovieSearchView: View {
             .navigationTitle("Search")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }
             }
+            .onAppear {
+                viewModel.load()
+            }
         }
-        .onAppear {
-            suggestions = MovieSearchSuggestions.load()
-        }
-    }
-    
-    private func deleteSuggestion(at offsets: IndexSet) {
-        suggestions.remove(atOffsets: offsets)
-        MovieSearchSuggestions.saveAll(suggestions)
     }
 }
 
-private struct MovieSearchSuggestions {
-    private static let key = "recentMovieSearches"
-    private static let maxCount = 10
-    
-    static func load() -> [String] {
-        UserDefaults.standard.stringArray(forKey: key) ?? []
-    }
-    
-    static func save(query: String) {
-        var current = load()
-        current.removeAll(where: { $0.caseInsensitiveCompare(query) == .orderedSame })
-        current.insert(query, at: 0)
-        if current.count > maxCount { current.removeLast() }
-        UserDefaults.standard.setValue(current, forKey: key)
-    }
-    
-    static func saveAll(_ queries: [String]) {
-        let trimmed = Array(queries.prefix(maxCount))
-        UserDefaults.standard.setValue(trimmed, forKey: key)
-    }
-}

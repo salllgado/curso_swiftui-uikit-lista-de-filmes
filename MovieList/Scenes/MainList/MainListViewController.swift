@@ -6,18 +6,11 @@
 //
 
 import UIKit
+import SwiftUI
 
 class MainListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     // MARK: - Properties
-    lazy var titleLabel: UILabel = {
-        let label: UILabel = .init()
-        label.text = "Movie list main"
-        label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     lazy var tableView: UITableView = {
         let tableView: UITableView = .init()
         tableView.backgroundColor = .white
@@ -42,28 +35,27 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     override func loadView() {
         super.loadView()
         view.backgroundColor = .brown
+        title = "Movie list main"
+        navigationController?.navigationBar.prefersLargeTitles = true
         
         tableView.dataSource = self
         tableView.delegate = self
         
         tableView.register(MovieUITableViewCell.self, forCellReuseIdentifier: "MovieCellView")
         
-        view.addSubview(titleLabel)
         view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), // topo
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16), // esquerda
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16), // direita
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor), // esquerda sem espaçamento
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor), // direita sem espaçamento
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupNavigationBar()
         Task {
             do {
                 self.values = try await viewModel.loadData()
@@ -72,7 +64,32 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
                 // apresentar um alerta de erro
             }
         }
-        
+    }
+
+    // MARK: - Navigation bar button for search
+    private func setupNavigationBar() {
+        if navigationController != nil {
+            let searchButton = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
+            navigationItem.rightBarButtonItem = searchButton
+        }
+    }
+    
+    @objc private func didTapSearch() {
+        // Present the SwiftUI search view inside a hosting controller
+        let searchVC = UIHostingController(
+            rootView: MovieSearchView(
+                onSelect: { [weak self] movie in
+                    guard let self = self else { return }
+                    // Dismiss the search, then push detail
+                    self.dismiss(animated: true) {
+                        let detailVC = UIHostingController(rootView: MovieDetailView(movie: movie))
+                        self.navigationController?.pushViewController(detailVC, animated: true)
+                    }
+                }
+            )
+        )
+        searchVC.modalPresentationStyle = .automatic
+        present(searchVC, animated: true)
     }
 
     // MARK: - Table View Setup
@@ -88,6 +105,8 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        titleLabel.text = values[indexPath.row].title
+        let movie = values[indexPath.row]
+        let detailVC = UIHostingController(rootView: MovieDetailView(movie: movie))
+        navigationController?.pushViewController(detailVC, animated: true)
     }
 }

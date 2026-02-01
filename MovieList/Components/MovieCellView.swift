@@ -58,5 +58,5 @@ struct MovieCellView: View {
 }
 
 #Preview {
-    MovieCellView(movie: .init(title: "Vingadores", posterPath: "dummy.png"))
+    MovieCellView(movie: .init(id: 0, title: "Vingadores", posterPath: "dummy.png"))
 }

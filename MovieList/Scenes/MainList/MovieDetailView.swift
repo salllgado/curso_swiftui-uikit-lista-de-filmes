@@ -17,6 +17,7 @@ struct MovieDetailView: View {
                     image
                         .resizable()
                         .scaledToFit()
+                        .frame(maxHeight: 200.0)
                 case .failure:
                     Image(systemName: "film")
                         .resizable()
@@ -68,6 +69,7 @@ struct MovieDetailView: View {
                 }
 
                 if let overview = movie.overview, !overview.isEmpty {
+                    Divider()
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Overview")
                             .font(.headline)
