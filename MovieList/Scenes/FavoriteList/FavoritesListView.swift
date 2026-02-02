@@ -29,16 +29,13 @@ final class FavoritesViewModel {
 struct FavoritesListView: View {
     @State var viewModel: FavoritesViewModel
     let onSelect: (Movies) -> Void
-    let onClose: () -> Void
 
     init(
         favoriteRepository: FavoriteRepository,
-        onSelect: @escaping (Movies) -> Void,
-        onClose: @escaping () -> Void
+        onSelect: @escaping (Movies) -> Void
     ) {
         self.viewModel = .init(favoriteRepository: favoriteRepository)
         self.onSelect = onSelect
-        self.onClose = onClose
     }
     
     var body: some View {
@@ -60,14 +57,6 @@ struct FavoritesListView: View {
             }
         }
         .navigationTitle("Favoritos")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: onClose) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.primary)
-                }
-            }
-        }
         .onAppear {
             viewModel.loadFavorites()
         }

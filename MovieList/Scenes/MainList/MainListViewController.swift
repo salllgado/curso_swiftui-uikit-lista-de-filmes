@@ -74,11 +74,17 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
 
     // MARK: - Navigation bar button for search & favorites
     private func setupNavigationBar() {
-        let searchButton = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
-        let favoritesButton = UIBarButtonItem(image: UIImage(systemName: "heart"),
-                                              style: .plain,
-                                              target: self,
-                                              action: #selector(didTapFavorites))
+        let searchButton = UIBarButtonItem(
+            barButtonSystemItem: .search,
+            target: self,
+            action: #selector(didTapSearch)
+        )
+        let favoritesButton = UIBarButtonItem(
+            image: UIImage(systemName: "heart"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapFavorites)
+        )
         navigationItem.rightBarButtonItems = [searchButton, favoritesButton]
     }
     
@@ -101,9 +107,6 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
             onSelect: { [weak self] movie in
                 guard let self = self else { return }
                 pushMovieDetailView(movie: movie)
-            },
-            onClose: { [weak self] in
-//                self?.favoritesHostingController?.dismiss(animated: true)
             }
         )
         let hostingController = UIHostingController(rootView: favoritesListView)
