@@ -1,5 +1,5 @@
 //
-//  Movies.swift
+//  MovieModel.swift
 //  MovieList
 //
 //  Created by Chrystian Salgado on 29/01/26.
@@ -8,19 +8,25 @@
 import Foundation
 
 struct PopularFilmsResponse: Codable {
-    let results: [Movies]
+    let results: [MovieModel]
 }
 
-struct Movies: Codable {
+struct MovieModel: Codable, Identifiable {
+    let id: Int
     let title: String
-    let posterPath: String
+    let posterPath: String?
     
     enum CodingKeys: String, CodingKey {
+        case id
         case title
         case posterPath = "poster_path"
     }
     
     func getPosterURL() -> URL? {
-        return API.posterPath(path: posterPath).buildURL()
+        if let posterPath {
+            return API.posterPath(path: posterPath).buildURL()
+        }
+        
+        return nil
     }
 }

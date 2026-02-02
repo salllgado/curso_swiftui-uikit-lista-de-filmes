@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 class MainListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -26,7 +27,7 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     }()
     
     let viewModel: MainListViewModelProtocol
-    var values: [Movies] = []
+    var values: [MovieModel] = []
     
     // MARK: - Initialize
     init(viewModel: MainListViewModelProtocol) {
@@ -60,6 +61,8 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor), // direita sem espaçamento
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        setupSearchNavigationItem()
     }
     
     override func viewDidLoad() {
@@ -89,5 +92,25 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         titleLabel.text = values[indexPath.row].title
+    }
+}
+
+private extension MainListViewController {
+    
+    func setupSearchNavigationItem() {
+        let searchBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(actionSearch))
+        navigationItem.rightBarButtonItems = [searchBarButtonItem]
+    }
+    
+    @objc private func actionSearch() {
+        let searchVC = UIHostingController(
+            rootView: MovieSearchView(
+                onSelect: { [weak self] movie in
+                    guard let self = self else { return }
+                    // TODO: Chamar a tela de detalhes
+                }
+            )
+        )
+        self.navigationController?.pushViewController(searchVC, animated: true)
     }
 }
