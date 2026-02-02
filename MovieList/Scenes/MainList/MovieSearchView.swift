@@ -1,20 +1,14 @@
 import SwiftUI
 
 struct MovieSearchView: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var viewModel: MovieSearchViewModel = .init()
+    @Bindable private var viewModel: MovieSearchViewModel
     @State private var query: String = ""
     
     var onSelect: (Movies) -> Void
-
-    init(onSelect: @escaping (Movies) -> Void) {
+    
+    init(viewModel: MovieSearchViewModel, onSelect: @escaping (Movies) -> Void) {
+        self.viewModel = viewModel
         self.onSelect = onSelect
-    }
-
-    private var filteredMovies: [Movies] {
-        guard !query.isEmpty else { return [] }
-        return viewModel.movies.filter { $0.title.lowercased().contains(query.lowercased()) }
     }
     
     @ViewBuilder
@@ -23,6 +17,9 @@ struct MovieSearchView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
             TextField("Search movies...", text: $query)
+                .onSubmit({
+                    self.viewModel.search(text: query)
+                })
                 .foregroundColor(.primary)
                 .disableAutocorrection(true)
         }
@@ -37,41 +34,27 @@ struct MovieSearchView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                searchTextField
-                
-                if query.isEmpty {
-                    Spacer()
-                    Text("Type something to search")
-                        .foregroundColor(.secondary)
-                        .padding()
-                    Spacer()
-                } else {
-                    List(filteredMovies) { movie in
-                        Button(action: {
-                            onSelect(movie)
-                            dismiss()
-                        }) {
-                            MovieCellView(movie: movie)
-                        }
-                    }
-                    .listStyle(InsetGroupedListStyle())
-                }
+        VStack {
+            searchTextField
+            if query.isEmpty {
                 Spacer()
-            }
-            .navigationTitle("Search")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close) {
-                        dismiss()
+                Text("Pesquise alguma coisa...")
+                    .foregroundColor(.secondary)
+                    .padding()
+                Spacer()
+            } else {
+                List(viewModel.movies) { movie in
+                    Button(action: {
+                        onSelect(movie)
+                    }) {
+                        MovieCellView(movie: movie)
                     }
                 }
+                .listStyle(InsetGroupedListStyle())
             }
-            .onAppear {
-                viewModel.load()
-            }
+            Spacer()
         }
+        .navigationTitle("Busca")
     }
 }
 

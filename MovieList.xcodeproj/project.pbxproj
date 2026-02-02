@@ -45,8 +45,8 @@
 		B8C731172F2824F900DDE613 = {
 			isa = PBXGroup;
 			children = (
-				B8C731222F2824F900DDE613 /* MovieList */,
 				B8C731212F2824F900DDE613 /* Products */,
+				B8C731222F2824F900DDE613 /* MovieList */,
 			);
 			sourceTree = "<group>";
 		};

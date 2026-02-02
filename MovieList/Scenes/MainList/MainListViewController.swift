@@ -21,9 +21,15 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     let viewModel: MainListViewModelProtocol
     var values: [Movies] = []
     
+    var favoriteMovies: [Movies] = []
+    var favoriteRepository: FavoriteRepository
+    
+    weak var favoritesHostingController: UIViewController?
+    
     // MARK: - Initialize
-    init(viewModel: MainListViewModelProtocol) {
+    init(viewModel: MainListViewModelProtocol, favoriteRepository: FavoriteRepository) {
         self.viewModel = viewModel
+        self.favoriteRepository = favoriteRepository
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -66,29 +72,42 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
 
-    // MARK: - Navigation bar button for search
+    // MARK: - Navigation bar button for search & favorites
     private func setupNavigationBar() {
-        if navigationController != nil {
-            let searchButton = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
-            navigationItem.rightBarButtonItem = searchButton
-        }
+        let searchButton = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(didTapSearch))
+        let favoritesButton = UIBarButtonItem(image: UIImage(systemName: "heart"),
+                                              style: .plain,
+                                              target: self,
+                                              action: #selector(didTapFavorites))
+        navigationItem.rightBarButtonItems = [searchButton, favoritesButton]
     }
     
     @objc private func didTapSearch() {
-        // Present the SwiftUI search view inside a hosting controller
         let searchVC = UIHostingController(
             rootView: MovieSearchView(
+                viewModel: .init(favoriteRepository: self.favoriteRepository),
                 onSelect: { [weak self] movie in
                     guard let self = self else { return }
-                    self.dismiss(animated: true) {
-                        let detailVC = UIHostingController(rootView: MovieDetailView(viewModel: .init(movie: movie)))
-                        self.navigationController?.pushViewController(detailVC, animated: true)
-                    }
+                    self.pushMovieDetailView(movie: movie)
                 }
             )
         )
-        searchVC.modalPresentationStyle = .automatic
-        present(searchVC, animated: true)
+        self.navigationController?.pushViewController(searchVC, animated: true)
+    }
+    
+    @objc private func didTapFavorites() {
+        let favoritesListView = FavoritesListView(
+            favoriteRepository: self.favoriteRepository,
+            onSelect: { [weak self] movie in
+                guard let self = self else { return }
+                pushMovieDetailView(movie: movie)
+            },
+            onClose: { [weak self] in
+//                self?.favoritesHostingController?.dismiss(animated: true)
+            }
+        )
+        let hostingController = UIHostingController(rootView: favoritesListView)
+        self.navigationController?.pushViewController(hostingController, animated: true)
     }
 
     // MARK: - Table View Setup
@@ -105,7 +124,14 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let movie = values[indexPath.row]
-        let detailVC = UIHostingController(rootView: MovieDetailView(viewModel: .init(movie: movie)))
+        pushMovieDetailView(movie: movie)
+    }
+}
+
+private extension MainListViewController {
+    
+    private func pushMovieDetailView(movie: Movies) {
+        let detailVC = UIHostingController(rootView: MovieDetailView(viewModel: .init(movie: movie, favoriteRepository: self.favoriteRepository)))
         navigationController?.pushViewController(detailVC, animated: true)
     }
 }

@@ -28,7 +28,9 @@ final class NetworkManager: NetworkManagerProtocol {
     
     // MARK: - Generic decode helper
     private func decodeRequest<T: Decodable>(_ request: URLRequest, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+        print("requesting: " + request.url!.absoluteString)
         let (data, _) = try await URLSession.shared.data(for: request)
+        print("response: " + (String(data: data, encoding: .utf8) ?? ""))
         return try decoder.decode(T.self, from: data)
     }
 }

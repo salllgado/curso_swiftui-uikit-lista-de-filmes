@@ -9,6 +9,7 @@ import Foundation
 
 enum API {
     case popular(page: Int)
+    case search(query: String, page: Int)
     case posterPath(path: String)
     
     var baseURL: String {
@@ -22,10 +23,23 @@ enum API {
     
     var endpoint: String {
         switch self {
-        case let .popular(page):
-            return "movie/popular?language=en-US&page=\(page)"
+        case .popular:
+            return "movie/popular"
+        case .search:
+            return "search/movie"
         case let .posterPath(path):
             return "w780\(path)"
+        }
+    }
+    
+    var queryParameters: [URLQueryItem] {
+        switch self {
+        case let .popular(page):
+            return [.init(name: "page", value: String(page)), .init(name: "language", value: "en-US")]
+        case let .search(query, page):
+            return [.init(name: "query", value: query), .init(name: "language", value: "en-US"), .init(name: "page", value: String(page))]
+        case .posterPath:
+            return []
         }
     }
     
@@ -39,12 +53,14 @@ enum API {
     
     var method: APIMethod {
         switch self {
-        case .popular, .posterPath:
+        case .popular, .posterPath, .search:
             return .get
         }
     }
     
     func buildURL() -> URL? {
-        return URL(string: baseURL + endpoint)
+        var url = URL(string: baseURL + endpoint)
+        url?.append(queryItems: queryParameters)
+        return url
     }
 }

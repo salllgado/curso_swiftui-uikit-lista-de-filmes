@@ -16,20 +16,28 @@ struct Movies: Codable, Identifiable {
     let title: String
     let overview: String?
     let voteAverage: Double?
-    let posterPath: String
+    let posterPath: String?
     
     init(
         id: Int,
         title: String,
         overview: String? = nil,
         voteAverage: Double? = nil,
-        posterPath: String
+        posterPath: String?
     ) {
         self.id = id
         self.title = title
         self.overview = overview
         self.voteAverage = voteAverage
         self.posterPath = posterPath
+    }
+    
+    init(favorite: FavoriteMovie) {
+        id = favorite.id
+        title = favorite.title
+        overview = favorite.overview
+        voteAverage = favorite.voteAverage
+        posterPath = favorite.posterPath
     }
     
     enum CodingKeys: String, CodingKey {
@@ -41,6 +49,20 @@ struct Movies: Codable, Identifiable {
     }
     
     func getPosterURL() -> URL? {
-        return API.posterPath(path: posterPath).buildURL()
+        if let posterPath {
+            return API.posterPath(path: posterPath).buildURL()
+        }
+        
+        return nil
+    }
+    
+    func toFavoriteModel() -> FavoriteMovie {
+        .init(
+            id: id,
+            title: title,
+            posterPath: posterPath,
+            voteAverage: voteAverage,
+            overview: overview
+        )
     }
 }

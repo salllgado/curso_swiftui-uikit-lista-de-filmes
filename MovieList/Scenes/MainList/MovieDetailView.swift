@@ -52,7 +52,7 @@ struct MovieDetailView: View {
     
     private var favoriteButton: some View {
         Button(action: {
-            viewModel.isFavorite.toggle()
+            viewModel.isFavorite ? viewModel.remove() : viewModel.favorite()
         }) {
             Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
                 .foregroundColor(viewModel.isFavorite ? .red : .primary)
@@ -109,6 +109,9 @@ struct MovieDetailView: View {
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(.systemBackground))
+        .onAppear {
+            viewModel.loadFavoriteState()
+        }
     }
 }
 
@@ -122,7 +125,7 @@ struct MovieDetailView: View {
                     overview: "This is a long overview describing the movie plot and details.",
                     voteAverage: 7.8,
                     posterPath: "/sample.png"
-                )
+                ), favoriteRepository: nil
             )
         )
     }
