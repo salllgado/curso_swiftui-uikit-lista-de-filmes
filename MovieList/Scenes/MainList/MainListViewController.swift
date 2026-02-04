@@ -13,7 +13,7 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     // MARK: - Properties
     lazy var titleLabel: UILabel = {
         let label: UILabel = .init()
-        label.text = "Movie list main"
+        label.text = "Top rated"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -77,6 +77,10 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
         }
         
     }
+    
+    func getMovie(from indexPath: IndexPath) -> MovieModel {
+        return values[indexPath.row]
+    }
 
     // MARK: - Table View Setup
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -85,13 +89,15 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCellView", for: indexPath) as! MovieUITableViewCell
-        cell.setup(movie: values[indexPath.row])
+        let movie: MovieModel = getMovie(from: indexPath)
+        cell.setup(movie: movie)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        titleLabel.text = values[indexPath.row].title
+        let movie: MovieModel = getMovie(from: indexPath)
+        navigateToDetailView(movie)
     }
 }
 
@@ -102,15 +108,26 @@ private extension MainListViewController {
         navigationItem.rightBarButtonItems = [searchBarButtonItem]
     }
     
-    @objc private func actionSearch() {
-        let searchVC = UIHostingController(
+    @objc func actionSearch() {
+        let viewController = UIHostingController(
             rootView: MovieSearchView(
                 onSelect: { [weak self] movie in
                     guard let self = self else { return }
-                    // TODO: Chamar a tela de detalhes
+                    self.navigateToDetailView(movie)
                 }
             )
         )
-        self.navigationController?.pushViewController(searchVC, animated: true)
+        self.navigationController?.pushViewController(viewController, animated: true)
+    }
+}
+
+private extension MainListViewController {
+    
+    func navigateToDetailView(_ movie: MovieModel) {
+        let viewModel = MoviewDetailViewModel(movie: movie, favoriteRepository: viewModel.favoriteRepository)
+        let viewController = UIHostingController(
+            rootView: MovieDetailView(viewModel: viewModel)
+        )
+        self.navigationController?.pushViewController(viewController, animated: true)
     }
 }

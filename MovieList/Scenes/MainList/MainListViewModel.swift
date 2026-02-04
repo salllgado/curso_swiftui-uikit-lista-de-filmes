@@ -8,10 +8,18 @@
 import Foundation
 
 protocol MainListViewModelProtocol: AnyObject {
+    var favoriteRepository: FavoriteRepository? { get }
+    
     func loadData() async throws -> [MovieModel]
 }
 
 final class MainListViewModel: MainListViewModelProtocol {
+    
+    let favoriteRepository: FavoriteRepository?
+    
+    init(favoriteRepository: FavoriteRepository?) {
+        self.favoriteRepository = favoriteRepository
+    }
     
     // MARK: - Public methods
     func loadData() async throws -> [MovieModel] {

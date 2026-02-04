@@ -33,6 +33,7 @@ struct MovieCellView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: 40)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
                 case .failure:
                     defaultPosterImage
                 @unknown default:
@@ -58,5 +59,13 @@ struct MovieCellView: View {
 }
 
 #Preview {
-    MovieCellView(movie: .init(id: 0, title: "Vingadores", posterPath: "dummy.png"))
+    MovieCellView(
+        movie: .init(
+            id: 1,
+            title: "Up Altas Aventuras",
+            posterPath: nil,
+            overview: "Filme infantil",
+            voteAverage: 8.0
+        )
+    )
 }
