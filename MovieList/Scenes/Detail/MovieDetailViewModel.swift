@@ -1,5 +1,5 @@
 //
-//  MoviewDetailViewModel.swift
+//  MovieDetailViewModel.swift
 //  MovieList
 //
 //  Created by Chrystian Salgado on 02/02/26.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-final class MoviewDetailViewModel {
+final class MovieDetailViewModel {
     let movie: MovieModel
     let favoriteRepository: FavoriteRepository?
     var isFavorite: Bool

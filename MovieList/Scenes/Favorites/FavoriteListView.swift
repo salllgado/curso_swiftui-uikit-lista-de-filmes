@@ -7,42 +7,31 @@
 
 import SwiftUI
 
-@Observable
-final class FavoriteListViewModel {
-    
-    private(set) var movies: [MovieModel]
-    let favoriteRepository: FavoriteRepository?
-    
-    init(
-        movies: [MovieModel] = [],
-        favoriteRepository: FavoriteRepository?
-    ) {
-        self.movies = movies
-        self.favoriteRepository = favoriteRepository
-    }
-    
-    func loadFavorites() {
-        do {
-            self.movies = try favoriteRepository?.fetchFavorites().map({ MovieModel(favoriteMovie: $0) }) ?? []
-        } catch let error {
-            print("## erro ao carregar os favoritos - \(error)")
-        }
-    }
-}
-
 struct FavoriteListView: View {
     
     @State var viewModel: FavoriteListViewModel
+    var onSelect: (_ movie: MovieModel) -> Void
     
-    init(viewModel: FavoriteListViewModel) {
+    init(
+        viewModel: FavoriteListViewModel,
+        onSelect: @escaping (_ movie: MovieModel) -> Void
+    ) {
         self.viewModel = viewModel
+        self.onSelect = onSelect
     }
     
     var body: some View {
-        Text("Hello, World!")
-            .task(priority: .background) {
-                viewModel.loadFavorites()
+        List(viewModel.movies) { movie in
+            Button {
+                self.onSelect(movie)
+            } label: {
+                MovieCellView(movie: movie)
             }
+        }
+        .navigationTitle("Favoritos")
+        .task(priority: .background) {
+            viewModel.loadFavorites()
+        }
     }
 }
 
@@ -63,5 +52,12 @@ struct FavoriteListView: View {
             voteAverage: 9.0
         )
     ]
-    FavoriteListView(viewModel: .init(movies: movies, favoriteRepository: nil))
+    FavoriteListView(
+        viewModel: .init(
+            movies: movies,
+            favoriteRepository: nil
+        ),
+        onSelect: { _ in
+        }
+    )
 }

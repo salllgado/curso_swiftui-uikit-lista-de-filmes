@@ -104,8 +104,24 @@ class MainListViewController: UIViewController, UITableViewDelegate, UITableView
 private extension MainListViewController {
     
     func setupSearchNavigationItem() {
-        let searchBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(actionSearch))
-        navigationItem.rightBarButtonItems = [searchBarButtonItem]
+        let searchButton = UIBarButtonItem(
+            barButtonSystemItem: .search,
+            target: self,
+            action: #selector(actionSearch)
+        )
+        let favoritesButton = UIBarButtonItem(
+            image: UIImage(systemName: "heart"),
+            style: .plain,
+            target: self,
+            action: #selector(didTapFavorites)
+        )
+        navigationItem.rightBarButtonItems = [searchButton, favoritesButton]
+    }
+    
+    @objc func didTapFavorites() {
+        let viewModel = FavoriteListViewModel(favoriteRepository: viewModel.favoriteRepository)
+        let viewController = UIHostingController(rootView: FavoriteListView(viewModel: viewModel, onSelect: navigateToDetailView))
+        navigationController?.pushViewController(viewController, animated: true)
     }
     
     @objc func actionSearch() {
@@ -124,10 +140,10 @@ private extension MainListViewController {
 private extension MainListViewController {
     
     func navigateToDetailView(_ movie: MovieModel) {
-        let viewModel = MoviewDetailViewModel(movie: movie, favoriteRepository: viewModel.favoriteRepository)
+        let viewModel = MovieDetailViewModel(movie: movie, favoriteRepository: viewModel.favoriteRepository)
         let viewController = UIHostingController(
             rootView: MovieDetailView(viewModel: viewModel)
         )
-        self.navigationController?.pushViewController(viewController, animated: true)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }

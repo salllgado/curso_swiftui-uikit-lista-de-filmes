@@ -9,9 +9,9 @@ import SwiftUI
 
 struct MovieDetailView: View {
     
-    @State var viewModel: MoviewDetailViewModel
+    @State var viewModel: MovieDetailViewModel
     
-    init(viewModel: MoviewDetailViewModel) {
+    init(viewModel: MovieDetailViewModel) {
         self.viewModel = viewModel
     }
     
